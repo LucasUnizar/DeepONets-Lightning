@@ -1,0 +1,44 @@
+{
+  "os": "macOS-15.5-arm64-arm-64bit",
+  "python": "CPython 3.11.11",
+  "startedAt": "2025-06-02T18:56:29.597333Z",
+  "program": "/Users/usuario/Desktop/Git Codes/DeepONets-Lightning/main.py",
+  "codePath": "main.py",
+  "git": {
+    "remote": "https://github.com/LucasUnizar/DeepONets-Lightning.git",
+    "commit": "5b890512a0fdaa5b9661e8a5f7d69729a82b7cf3"
+  },
+  "email": "lucas.biomec@gmail.com",
+  "root": ".",
+  "host": "LTESAN.local",
+  "executable": "/Users/usuario/miniconda3/envs/pl/bin/python",
+  "codePathLocal": "main.py",
+  "cpu_count": 14,
+  "cpu_count_logical": 14,
+  "disk": {
+    "/": {
+      "total": "1995218165760",
+      "used": "167055970304"
+    },
+    "/System/Volumes/Data": {
+      "total": "1995218165760",
+      "used": "167055970304"
+    }
+  },
+  "memory": {
+    "total": "38654705664"
+  },
+  "cpu": {
+    "count": 14,
+    "countLogical": 14
+  },
+  "apple": {
+    "name": "Apple M3 Max",
+    "ecpuCores": 4,
+    "pcpuCores": 10,
+    "gpuCores": 30,
+    "memoryGb": 36,
+    "swapTotalBytes": "2147483648",
+    "ramTotalBytes": "38654705664"
+  }
+}

@@ -1,0 +1,29 @@
+
+Setting up DataModule for stage: TrainerFn.FITTING
+
+Loading data from data/reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat for train split
+
+Loading data from data/reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat for val split
+Train dataset size: 400000
+Val dataset size: 50000
+/Users/usuario/miniconda3/envs/pl/lib/python3.11/site-packages/torch/optim/lr_scheduler.py:62: UserWarning: The verbose parameter is deprecated. Please use get_last_lr() to access the learning rate.
+  warnings.warn(
+
+  | Name   | Type       | Params | Mode
+----------------------------------------------
+0 | branch | Sequential | 15.2 K | train
+1 | trunk  | Sequential | 10.3 K | train
+----------------------------------------------
+25.6 K    Trainable params
+0         Non-trainable params
+25.6 K    Total params
+0.102     Total estimated model params size (MB)
+20        Modules in train mode
+0         Modules in eval mode
+Creating train dataloader
+/Users/usuario/miniconda3/envs/pl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:420: Consider setting `persistent_workers=True` in 'train_dataloader' to speed up the dataloader worker initialization.
+/Users/usuario/miniconda3/envs/pl/lib/python3.11/site-packages/pytorch_lightning/loops/fit_loop.py:310: The number of training batches (40) is smaller than the logging interval Trainer(log_every_n_steps=50). Set a lower value for log_every_n_steps if you want to see logs for the training epoch.
+Creating val dataloader
+/Users/usuario/miniconda3/envs/pl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:420: Consider setting `persistent_workers=True` in 'val_dataloader' to speed up the dataloader worker initialization.
+Epoch 0: 100%|███████████████████████████████████████████████| 40/40 [00:06<00:00,  5.88it/s, v_num=goa4, train_loss=0.393]
+Validation: |                                                                                        | 0/? [00:00<?, ?it/s]

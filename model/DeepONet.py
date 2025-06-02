@@ -4,6 +4,9 @@ import pytorch_lightning as pl
 import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.interpolate import griddata
 import wandb
 
 
@@ -138,22 +141,60 @@ class DeepONet(pl.LightningModule):
         return loss
 
     def _plot_test_example(self, coords, solution, pred):
-        """Plot and save a test example showing true solution vs prediction"""
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+        """Plot and save test examples showing true solution vs prediction"""
+        # Convert to numpy arrays
+        coords = coords.numpy()
+        solution = solution.numpy().flatten()
+        pred = pred.numpy().flatten()
         
-        # Plot true solution
+        # Create grid for surface plot
+        grid_x, grid_t = np.mgrid[coords[:,0].min():coords[:,0].max():100j, 
+                          coords[:,1].min():coords[:,1].max():100j]
+        
+        # Interpolate true solution
+        grid_solution = griddata(coords, solution, (grid_x, grid_t), method='cubic')
+        
+        # Interpolate prediction
+        grid_pred = griddata(coords, pred, (grid_x, grid_t), method='cubic')
+        
+        # Create figure with 4 subplots
+        fig = plt.figure(figsize=(18, 12))
+        
+        # Scatter plot of true solution
+        ax1 = fig.add_subplot(221)
         sc1 = ax1.scatter(coords[:, 0], coords[:, 1], c=solution, cmap='plasma', s=10)
         plt.colorbar(sc1, ax=ax1)
-        ax1.set_title('True Solution')
+        ax1.set_title('True Solution (Scatter)')
         ax1.set_xlabel('x')
         ax1.set_ylabel('t')
         
-        # Plot prediction
+        # Scatter plot of prediction
+        ax2 = fig.add_subplot(222)
         sc2 = ax2.scatter(coords[:, 0], coords[:, 1], c=pred, cmap='plasma', s=10)
         plt.colorbar(sc2, ax=ax2)
-        ax2.set_title('Predicted Solution')
+        ax2.set_title('Predicted Solution (Scatter)')
         ax2.set_xlabel('x')
         ax2.set_ylabel('t')
+        
+        # Surface plot of true solution
+        ax3 = fig.add_subplot(223, projection='3d')
+        surf1 = ax3.plot_surface(grid_x, grid_t, grid_solution, cmap='plasma',
+                                linewidth=0, antialiased=False, alpha=0.8)
+        fig.colorbar(surf1, ax=ax3, shrink=0.5, aspect=5)
+        ax3.set_title('True Solution (Surface)')
+        ax3.set_xlabel('x')
+        ax3.set_ylabel('t')
+        ax3.set_zlabel('u(x,t)')
+        
+        # Surface plot of prediction
+        ax4 = fig.add_subplot(224, projection='3d')
+        surf2 = ax4.plot_surface(grid_x, grid_t, grid_pred, cmap='plasma',
+                                linewidth=0, antialiased=False, alpha=0.8)
+        fig.colorbar(surf2, ax=ax4, shrink=0.5, aspect=5)
+        ax4.set_title('Predicted Solution (Surface)')
+        ax4.set_xlabel('x')
+        ax4.set_ylabel('t')
+        ax4.set_zlabel('u(x,t)')
         
         plt.tight_layout()
         
