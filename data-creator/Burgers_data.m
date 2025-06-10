@@ -26,7 +26,7 @@ nu = 0.025;         % Kinematic viscosity (diffusion coefficient) for Burgers' e
 % Dataset parameters
 N_train = 5000;      % Number of training samples
 P_train = 100;      % Number of output sensor points per sample
-Nt_sample = 20;     % Desired number of time points for SAMPLING per solution.
+Nt_sample = 100;     % Desired number of time points for SAMPLING per solution.
                     % Total (x,t) output samples will be P_train. If P_train > Nx * Nt_sample,
                     % it will randomly select more (x,t) pairs from the available Nt_sample points.
 
