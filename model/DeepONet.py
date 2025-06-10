@@ -199,7 +199,7 @@ class DeepONet(pl.LightningModule):
         plt.tight_layout()
         
         # Save the figure
-        plt.savefig('test_prediction_example.png')
+        plt.savefig('outputs/test_prediction_example.png')
         plt.close(fig)
         
         # Optionally log to wandb if available
