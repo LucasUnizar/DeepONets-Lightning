@@ -49,7 +49,7 @@ class ReactionDiffusionDataset(Dataset):
         }
 
 # Data Module
-class ReactionDiffusionDataModule(pl.LightningDataModule):
+class DataModule(pl.LightningDataModule):
     def __init__(self, mat_file_path, batch_size=32, sampled=100):
         super().__init__()
         self.mat_file_path = mat_file_path
