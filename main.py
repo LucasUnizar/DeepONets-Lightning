@@ -50,7 +50,7 @@ def parse_args():
                        help='Number of branch network layers')
     
     # Training arguments
-    parser.add_argument('--max_epochs', type=int, default=100,
+    parser.add_argument('--max_epochs', type=int, default=1,
                        help='Maximum number of epochs to train')
     parser.add_argument('--iterations', type=int, default=120000,
                        help='Desired number of iterations (alternative to max_epochs)')
@@ -58,7 +58,7 @@ def parse_args():
                        help='How often to check validation (in epochs)')
     
     # Logging/checkpoint arguments
-    parser.add_argument('--project', type=str, default='DeepONet-Reaction-Diffusion',
+    parser.add_argument('--project', type=str, default='tester',
                        help='W&B project name')
     parser.add_argument('--save_dir', type=str, default='checkpoints',
                        help='Directory to save checkpoints')

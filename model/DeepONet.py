@@ -209,7 +209,7 @@ class DeepONet(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3, weight_decay=1e-4)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.5, patience=5, verbose=True)
+            optimizer, mode='min', factor=0.5, patience=5)
         return {
             'optimizer': optimizer,
             'lr_scheduler': {
