@@ -38,7 +38,7 @@ The development of DeepONets builds upon and significantly advances the field of
 
 ## Equations Solved
 
-This repository focuses on solving the following 1D partial differential equations. The exact formulations used for data generation can be found within the `data-creator` folder, typically in files like `create_burgers_data.m` and `create_reaction_diffusion_data.m`.
+This repository focuses on solving the following 1D partial differential equations. The exact formulations used for data generation can be found within the `data-creator` folder, typically in files like `Burgers_data.m` and `RD_data.m`.
 
 ### 1D Burgers' Equation
 
