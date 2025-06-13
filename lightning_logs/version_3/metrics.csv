@@ -1,0 +1,2 @@
+epoch,step,test_loss,test_relative_l2
+0,0,0.0032758968882262707,0.23686784505844116

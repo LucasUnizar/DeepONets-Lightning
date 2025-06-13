@@ -101,44 +101,69 @@ class DeepONet(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        input_func = batch['input_func']
-        coords = batch['coords']
-        solution = batch['solution']
+        with torch.no_grad():
+            input_func = batch['input_func']
+            coords = batch['coords']
+            solution = batch['solution']
 
-        pred = self(input_func, coords)
-        
-        # Ensure shapes match
-        pred = pred.view(-1, 1)
-        solution = solution.view(-1, 1)
-        
-        loss = F.mse_loss(pred, solution)
+            pred = self(input_func, coords)
+            
+            # Ensure shapes match
+            pred = pred.view(-1, 1)
+            solution = solution.view(-1, 1)
+            
+            loss = F.mse_loss(pred, solution)
 
-        self.log('val_loss', loss, prog_bar=True)
-        return loss
+            self.log('val_loss', loss, prog_bar=True)
+            return loss
 
     def test_step(self, batch, batch_idx):
-        input_func = batch['input_func']
-        coords = batch['coords']
-        solution = batch['solution']
+        with torch.no_grad():
+            input_func = batch['input_func']
+            coords = batch['coords']
+            solution = batch['solution']
 
-        pred = self(input_func, coords)
-        
-        # Ensure shapes match
-        pred = pred.view(-1, 1)
-        solution = solution.view(-1, 1)
-        
-        loss = F.mse_loss(pred, solution)
-
-        # Calculate relative L2 error
-        relative_l2 = torch.norm(pred - solution, p=2) / torch.norm(solution, p=2)
-        self.log('test_loss', loss)
-        self.log('test_relative_l2', relative_l2)
-
-        # Plot and save example predictions for the first test batch
-        if batch_idx == 0:
-            self._plot_test_example(coords.cpu(), solution.cpu(), pred.cpu())
+            pred = self(input_func, coords)
             
-        return loss
+            # Ensure shapes match
+            pred = pred.view(-1, 1)
+            solution = solution.view(-1, 1)
+            
+            loss = F.mse_loss(pred, solution)
+
+            # Calculate relative L2 error
+            relative_l2 = torch.norm(pred - solution, p=2) / torch.norm(solution, p=2)
+            self.log('test_loss', loss)
+            self.log('test_relative_l2', relative_l2)
+
+            # Plot and save example predictions for the first test batch
+            if batch_idx == 0:
+                self._plot_test_example(coords.cpu(), solution.cpu(), pred.cpu())
+                
+            return loss
+
+    def on_test_end(self, time=[0,1], domain=[-1, 1], num_points=100, idx_arg=0):
+        with torch.no_grad():
+            print("Generating extra dense test example for visualization...")
+            for idx, batch in enumerate(self.trainer.datamodule.test_dataloader()):
+                input_func = batch['input_func']
+                f_x = input_func[0, :].unsqueeze(0)  # [1, m]
+                x = torch.linspace(domain[0], domain[1], num_points).to(self.device)
+                t = torch.linspace(time[0], time[1], num_points).to(self.device)
+
+                # Create 2D grids of x and t
+                X_grid, T_grid = torch.meshgrid(x, t, indexing='ij') # 'ij' for matrix-style indexing
+
+                # Flatten the grids and combine them
+                coords = torch.stack([X_grid.flatten(), T_grid.flatten()], dim=1).squeeze().to(self.device)  # [num_points^2, 2]
+                input_func_dense = f_x.repeat(coords.shape[0], 1).to(self.device)  # [num_points^2, m]
+
+                pred = self(input_func_dense, coords)
+                if idx == idx_arg:
+                    self._plot_test_example_solution_only(coords.cpu(), pred.cpu())
+                    print("Dense test example plotted and saved.")
+                    return
+                    
 
     def _plot_test_example(self, coords, solution, pred):
         """Plot and save test examples showing true solution vs prediction"""
@@ -205,16 +230,61 @@ class DeepONet(pl.LightningModule):
         # Optionally log to wandb if available
         if wandb.run is not None:
             wandb.log({"test_prediction_example": wandb.Image(fig)})
+    
+
+    def _plot_test_example_solution_only(self, coords, solution):
+        """Plot and save test examples showing true solution and its surface map."""
+        # Convert to numpy arrays
+        coords = coords.numpy()
+        solution = solution.numpy().flatten()
+        
+        # Create grid for surface plot
+        grid_x, grid_t = np.mgrid[coords[:,0].min():coords[:,0].max():100j, 
+                        coords[:,1].min():coords[:,1].max():100j]
+        
+        # Interpolate true solution
+        grid_solution = griddata(coords, solution, (grid_x, grid_t), method='cubic')
+        
+        # Create figure with 2 subplots
+        fig = plt.figure(figsize=(12, 6)) # Adjusted figure size for 2 plots
+        
+        # Scatter plot of true solution
+        ax1 = fig.add_subplot(121) # 1 row, 2 columns, 1st plot
+        sc1 = ax1.scatter(coords[:, 0], coords[:, 1], c=solution, cmap='plasma', s=10)
+        plt.colorbar(sc1, ax=ax1)
+        ax1.set_title('True Solution (Scatter)')
+        ax1.set_xlabel('x')
+        ax1.set_ylabel('t')
+        
+        # Surface plot of true solution
+        ax2 = fig.add_subplot(122, projection='3d') # 1 row, 2 columns, 2nd plot
+        surf1 = ax2.plot_surface(grid_x, grid_t, grid_solution, cmap='plasma',
+                                linewidth=0, antialiased=False, alpha=0.8)
+        fig.colorbar(surf1, ax=ax2, shrink=0.5, aspect=5)
+        ax2.set_title('True Solution (Surface)')
+        ax2.set_xlabel('x')
+        ax2.set_ylabel('t')
+        ax2.set_zlabel('u(x,t)')
+        
+        plt.tight_layout()
+        
+        # Save the figure
+        plt.savefig('outputs/true_solution_example.png') # Changed filename
+        plt.close(fig)
+        
+        # Optionally log to wandb if available
+        if wandb.run is not None:
+            wandb.log({"true_solution_example": wandb.Image(fig)})
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3, weight_decay=1e-4)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.5, patience=5)
+            optimizer, mode='min', factor=0.8, patience=30, min_lr=1e-6)
         return {
             'optimizer': optimizer,
             'lr_scheduler': {
                 'scheduler': scheduler,
-                'monitor': 'val_loss',
+                'monitor': 'train_loss',
                 'interval': 'epoch',
                 'frequency': 1
             }

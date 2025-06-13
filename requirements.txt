@@ -1,7 +1,7 @@
 torch
 torchvision
 torchaudio
-lightning
+pytorch-lightning
 numpy
 matplotlib
 scipy

@@ -9,7 +9,7 @@ with Weights & Biases integration and checkpointing.
 import argparse
 from pathlib import Path
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, lr_monitor
 from pytorch_lightning.loggers import WandbLogger
 import matplotlib
 import torch
@@ -30,9 +30,11 @@ def parse_args():
                        help='Train the model (default)')
     parser.add_argument('--test', action='store_true',
                        help='Test the model with saved weights')
+    parser.add_argument('--pretrained', type=str, default=None,
+                       help='Path to pre-trained model weights for transfer learning')
     
     # Data arguments
-    parser.add_argument('--data_path', type=str, default=r'data/burgers_dataset_IC_gaussian_N5000_P100_nu0.0250_256x10000_sampled100.mat',
+    parser.add_argument('--data_path', type=str, default=r'data/reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat',
                        help='Path to the .mat data file')
     parser.add_argument('--batch_size', type=int, default=10000,
                        help='Batch size for training')
@@ -50,7 +52,7 @@ def parse_args():
                        help='Number of branch network layers')
     
     # Training arguments
-    parser.add_argument('--max_epochs', type=int, default=1,
+    parser.add_argument('--max_epochs', type=int, default=3000,
                        help='Maximum number of epochs to train')
     parser.add_argument('--iterations', type=int, default=120000,
                        help='Desired number of iterations (alternative to max_epochs)')
@@ -58,7 +60,7 @@ def parse_args():
                        help='How often to check validation (in epochs)')
     
     # Logging/checkpoint arguments
-    parser.add_argument('--project', type=str, default='tester',
+    parser.add_argument('--project', type=str, default='DeepONets-Jaca',
                        help='W&B project name')
     parser.add_argument('--save_dir', type=str, default='checkpoints',
                        help='Directory to save checkpoints')
@@ -106,10 +108,13 @@ def main():
     
     if args.test:
         # Testing mode - load saved weights
-        weights_path = args.weights_path or Path(args.save_dir) / 'last.ckpt'
-        if not Path(weights_path).exists():
-            raise FileNotFoundError(f"Weights file not found: {weights_path}. "
-                                  "Please specify with --weights_path or train a model first.")
+        if args.pretrained is not None:
+            weights_path = args.pretrained
+        else:
+            weights_path = args.weights_path or Path(args.save_dir) / 'last.ckpt'
+            if not Path(weights_path).exists():
+                raise FileNotFoundError(f"Weights file not found: {weights_path}. "
+                                    "Please specify with --weights_path or train a model first.")
         
         print(f"Loading model weights from: {weights_path}")
         trainer = pl.Trainer(
@@ -157,8 +162,9 @@ def main():
         mode='min',
         save_last=True
     )
-    
-    callbacks = [checkpoint_callback]
+
+    lr_monitor_callback = lr_monitor.LearningRateMonitor(logging_interval='epoch')  
+    callbacks = [checkpoint_callback, lr_monitor_callback]
     
     if args.early_stop_patience is not None:
         early_stop_callback = EarlyStopping(
