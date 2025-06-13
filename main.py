@@ -38,7 +38,7 @@ def parse_args():
                        help='Path to the .mat data file')
     parser.add_argument('--batch_size', type=int, default=10000,
                        help='Batch size for training')
-    parser.add_argument('--input_sensors', type=int, default=256,
+    parser.add_argument('--input_sensors', type=int, default=100,
                        help='Number of input sensors (m)')
     parser.add_argument('--output_sensors', type=int, default=100,
                        help='Number of output sensors (P)')
@@ -99,6 +99,7 @@ def main():
     
     # Initialize model
     model = DeepONet(
+        args=args,
         m=args.input_sensors,
         P=args.output_sensors,
         hidden_dim=args.hidden_dim,

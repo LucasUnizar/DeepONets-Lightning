@@ -11,7 +11,7 @@ import wandb
 
 
 class DeepONet(pl.LightningModule):
-    def __init__(self, m=100, P=100, hidden_dim=128, trunk_layers=3, branch_layers=3):
+    def __init__(self, args, m=100, P=100, hidden_dim=128, trunk_layers=3, branch_layers=3):
         """
         Args:
             m: Number of input function sensors
@@ -22,6 +22,22 @@ class DeepONet(pl.LightningModule):
         """
         super().__init__()
         self.save_hyperparameters()
+        # External arguments
+        self.args = args
+        self.max_epochs = args.max_epochs
+        
+        # Determine activation function
+        if hasattr(args, 'activation_function') and args.activation_function == 'cosine_tanh':
+            self.activation = lambda x: F.tanh(F.cos(x)) # Apply cos then tanh
+            # You could also define a custom module if you prefer:
+            # class CosineTanh(nn.Module):
+            #     def forward(self, x):
+            #         return torch.tanh(torch.cos(x))
+            # self.activation = CosineTanh()
+            print("Using Cosine-Tanh activation function.")
+        else:
+            self.activation = nn.Tanh() # Default to Tanh
+            print("Using Tanh activation function.")
         
         # Validate layer counts
         if trunk_layers < 1 or branch_layers < 1:
@@ -32,10 +48,10 @@ class DeepONet(pl.LightningModule):
         in_features = m
         for i in range(branch_layers):
             branch_modules.append(nn.Linear(in_features, hidden_dim))
-            branch_modules.append(nn.Tanh())
+            branch_modules.append(self.activation) # Use the selected activation
             in_features = hidden_dim
         
-        # Remove last Tanh if more than 1 layer (optional choice)
+        # Remove last activation if more than 1 layer (optional choice, often done for last layer output)
         if branch_layers > 1:
             branch_modules = branch_modules[:-1]
             
@@ -46,10 +62,10 @@ class DeepONet(pl.LightningModule):
         in_features = 2  # For (x,t) coordinates
         for i in range(trunk_layers):
             trunk_modules.append(nn.Linear(in_features, hidden_dim))
-            trunk_modules.append(nn.Tanh())
+            trunk_modules.append(self.activation) # Use the selected activation
             in_features = hidden_dim
         
-        # Remove last Tanh if more than 1 layer (optional choice)
+        # Remove last activation if more than 1 layer (optional choice)
         if trunk_layers > 1:
             trunk_modules = trunk_modules[:-1]
             
@@ -64,6 +80,11 @@ class DeepONet(pl.LightningModule):
     def _init_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
+                # When using other activations, the gain for Xavier initialization might need adjustment.
+                # For tanh, 'calculate_gain('tanh')' is appropriate.
+                # For custom activations like cos then tanh, it's less straightforward.
+                # You might need to experiment or use a generic gain like 1.0 or 'relu'.
+                # For now, keeping 'tanh' gain, as tanh is the last part of the custom activation.
                 nn.init.xavier_normal_(m.weight, gain=nn.init.calculate_gain('tanh'))
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
@@ -278,13 +299,15 @@ class DeepONet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.8, patience=30, min_lr=1e-6)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, 
+            T_max=self.max_epochs, # Maximum number of iterations (epochs in this case)
+            eta_min=1e-6 # Minimum learning rate
+        )
         return {
             'optimizer': optimizer,
             'lr_scheduler': {
                 'scheduler': scheduler,
-                'monitor': 'train_loss',
                 'interval': 'epoch',
                 'frequency': 1
             }
