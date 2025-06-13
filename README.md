@@ -34,7 +34,7 @@ The DeepONet architecture, a pioneering approach in operator learning, was intro
 **Physic Informed DeepONets**
     [https://github.com/PredictiveIntelligenceLab/Physics-informed-DeepONets]
 
-The development of DeepONets builds upon and significantly advances the field of scientific machine learning, particularly in solving PDEs and learning complex input-output relationships for various physical systems.
+The development of DeepONets builds upon and significantly advances the field of scientific machine learning, particularly in solving PDEs and learning complex input-output relationships for various physical systems. Therefore, we strongly recommend reading these original contributions.
 
 ## Equations Solved
 
