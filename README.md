@@ -22,17 +22,17 @@ This repository provides a modernized and streamlined adaptation of the DeepONet
 
 The DeepONet architecture, a pioneering approach in operator learning, was introduced and extensively explored in the following foundational works by Lu, Karniadakis, and collaborators. These papers lay the theoretical groundwork and demonstrate the broad applicability of DeepONets:
 
-1.  **Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators.**
+**Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators.**
     Lu, L., Jin, P., Pang, G., Zhang, Z., & Karniadakis, G. E. (2021).
     *Nature Machine Intelligence*, 3(3), 218-229.
     [DOI: 10.1038/s42256-021-00302-5](https://doi.org/10.1038/s42256-021-00302-5)
     *This seminal paper introduces the DeepONet concept, grounding it in the universal approximation theorem for operators.*
 
-2.  **DeepONet: A deep operator network for learning nonlinear operators.**
-    Lu, L., Pang, G., & Karniadakis, G. E. (2021).
-    *Journal of Machine Learning for Modeling and Computing*, 2(1).
-    [DOI: 10.1615/JMMLC.2021034444](https://doi.org/10.1615/JMMLC.2021034444)
-    *This work provides further theoretical insights and comprehensive numerical examples of DeepONet's capabilities.*
+**Original Github code**
+    [https://github.com/lululxvi/deeponet]
+
+**Physic Informed DeepONets**
+    [https://github.com/PredictiveIntelligenceLab/Physics-informed-DeepONets]
 
 The development of DeepONets builds upon and significantly advances the field of scientific machine learning, particularly in solving PDEs and learning complex input-output relationships for various physical systems.
 
