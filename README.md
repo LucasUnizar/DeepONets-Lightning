@@ -73,7 +73,7 @@ To get started with this project, follow these steps:
 
 ```bash
 # Clone the repository
-git clone [https://github.com/LucasUnizar/DeepONets-Lightning.git](https://github.com/LucasUnizar/DeepONets-Lightning.git)
+git clone https://github.com/LucasUnizar/DeepONets-Lightning.git
 cd DeepONets-Lightning
 
 # Create a dedicated conda environment (highly recommended for dependency management)
