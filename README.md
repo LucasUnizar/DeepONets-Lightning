@@ -46,7 +46,7 @@ The 1D Burgers' equation is a fundamental PDE describing the propagation of a sh
 
 $$ \frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = \nu \frac{\partial^2 u}{\partial x^2} $$
 
-where $u(x, t)$ is the dependent variable (e.g., velocity), $x$ is the spatial coordinate, $t$ is time, and $\nu$ is the kinematic viscosity.
+where $u(x, t)$ is the dependent variable (e.g., velocity), $x$ is the spatial coordinate, $t$ is time, and $\nu$ is the kinematic viscosity, while the IC, $u(x,0) = f(x)$.
 
 ### 1D Reaction-Diffusion Equation
 
