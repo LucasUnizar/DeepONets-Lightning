@@ -42,7 +42,9 @@ def parse_args():
                        help='Number of input sensors (m)')
     parser.add_argument('--output_sensors', type=int, default=100,
                        help='Number of output sensors (P)')
-    
+    parser.add_argument('--domain', type=str, default='reaction_diffusion',
+                       help='Domain of the problem (default: reaction_diffusion)')
+
     # Model arguments
     parser.add_argument('--hidden_dim', type=int, default=50,
                        help='Hidden dimension size')
