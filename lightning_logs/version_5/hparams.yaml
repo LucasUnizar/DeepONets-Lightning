@@ -1,5 +1,0 @@
-P: 100
-branch_layers: 5
-hidden_dim: 50
-m: 256
-trunk_layers: 5
