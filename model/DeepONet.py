@@ -163,12 +163,17 @@ class DeepONet(pl.LightningModule):
                 
             return loss
 
-    def on_test_end(self, time=[0,1], domain=[-1, 1], num_points=100, idx_arg=0):
+    def on_test_end(self, time=[0,1], num_points=100, idx_arg=0):
         with torch.no_grad():
             print("Generating extra dense test example for visualization...")
             for idx, batch in enumerate(self.trainer.datamodule.test_dataloader()):
                 input_func = batch['input_func']
                 f_x = input_func[0, :].unsqueeze(0)  # [1, m]
+                if self.args.domain == 'reaction_diffusion':
+                    domain = [0, 1]  # Adjust as needed for your specific problem
+                else:
+                    domain = [-1, 1]  # Default case
+                
                 x = torch.linspace(domain[0], domain[1], num_points).to(self.device)
                 t = torch.linspace(time[0], time[1], num_points).to(self.device)
 
