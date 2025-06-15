@@ -25,15 +25,11 @@ class DeepONet(pl.LightningModule):
         # External arguments
         self.args = args
         self.max_epochs = args.max_epochs
+        self.domain = args.domain if hasattr(args, 'domain') else [0, 1]
         
         # Determine activation function
         if hasattr(args, 'activation_function') and args.activation_function == 'cosine_tanh':
             self.activation = lambda x: F.tanh(F.cos(x)) # Apply cos then tanh
-            # You could also define a custom module if you prefer:
-            # class CosineTanh(nn.Module):
-            #     def forward(self, x):
-            #         return torch.tanh(torch.cos(x))
-            # self.activation = CosineTanh()
             print("Using Cosine-Tanh activation function.")
         else:
             self.activation = nn.Tanh() # Default to Tanh
@@ -169,10 +165,7 @@ class DeepONet(pl.LightningModule):
             for idx, batch in enumerate(self.trainer.datamodule.test_dataloader()):
                 input_func = batch['input_func']
                 f_x = input_func[0, :].unsqueeze(0)  # [1, m]
-                if self.args.domain == 'reaction_diffusion':
-                    domain = [0, 1]  # Adjust as needed for your specific problem
-                else:
-                    domain = [-1, 1]  # Default case
+                domain = self.domain
                 
                 x = torch.linspace(domain[0], domain[1], num_points).to(self.device)
                 t = torch.linspace(time[0], time[1], num_points).to(self.device)
