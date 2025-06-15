@@ -42,8 +42,10 @@ def parse_args():
                        help='Number of input sensors (m)')
     parser.add_argument('--output_sensors', type=int, default=100,
                        help='Number of output sensors (P)')
-    parser.add_argument('--domain', type=str, default='reaction_diffusion',
-                       help='Domain of the problem (default: reaction_diffusion)')
+    parser.add_argument('--domain', type=list, default=[0, 1],
+                       help='Domain of the input data as a list [min, max]')
+    parser.add_argument('--time_domain', type=list, default=[0, 1],
+                       help='Time domain of the input data as a list [min, max]')
 
     # Model arguments
     parser.add_argument('--hidden_dim', type=int, default=50,
@@ -54,7 +56,7 @@ def parse_args():
                        help='Number of branch network layers')
     
     # Training arguments
-    parser.add_argument('--max_epochs', type=int, default=3000,
+    parser.add_argument('--max_epochs', type=int, default=1,
                        help='Maximum number of epochs to train')
     parser.add_argument('--iterations', type=int, default=120000,
                        help='Desired number of iterations (alternative to max_epochs)')
