@@ -26,6 +26,7 @@ class DeepONet(pl.LightningModule):
         self.args = args
         self.max_epochs = args.max_epochs
         self.domain = args.domain if hasattr(args, 'domain') else [0, 1]
+        self.time_domain = args.time_domain if hasattr(args, 'time_domain') else [0, 1]
         
         # Determine activation function
         if hasattr(args, 'activation_function') and args.activation_function == 'cosine_tanh':
@@ -159,13 +160,14 @@ class DeepONet(pl.LightningModule):
                 
             return loss
 
-    def on_test_end(self, time=[0,1], num_points=100, idx_arg=0):
+    def on_test_end(self, num_points=100, idx_arg=0):
         with torch.no_grad():
             print("Generating extra dense test example for visualization...")
             for idx, batch in enumerate(self.trainer.datamodule.test_dataloader()):
                 input_func = batch['input_func']
                 f_x = input_func[0, :].unsqueeze(0)  # [1, m]
                 domain = self.domain
+                time = self.time_domain
                 
                 x = torch.linspace(domain[0], domain[1], num_points).to(self.device)
                 t = torch.linspace(time[0], time[1], num_points).to(self.device)
