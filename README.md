@@ -93,7 +93,7 @@ wandb login
 
 | Category          | Specification                                  |
 |-------------------|-----------------------------------------------|
-| **Dataset**       | `reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat` |
+| **Dataset**       | `burgers_dataset_IC_gaussian_N5000_P100_nu0.0250_256x10000_sampled100.mat` |
 | **Trajectories**  | 5,000 (train/val/test split)                  |
 | **Input Dim**     | 100 sensors                                   |
 | **Output Dim**    | 100 sensors                                   |
