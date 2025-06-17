@@ -85,3 +85,9 @@ pip install -r requirements.txt
 
 # Log in to Weights & Biases (if you plan to use W&B for experiment tracking)
 wandb login
+```
+
+## Plots
+<div align="center">
+<img src="/outputs/true_solution_example.png" width="850">
+</div>
