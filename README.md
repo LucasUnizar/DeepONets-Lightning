@@ -54,7 +54,7 @@ The 1D Reaction-Diffusion equation models phenomena where two processes occur: d
 
 $$ \frac{\partial u}{\partial t} = D \frac{\partial^2 u}{\partial x^2} + R(u) $$
 
-where $u(x, t)$ is the concentration of a substance, $D$ is the diffusion coefficient, and $R(u)$ is the reaction term, which can be linear or nonlinear. For example, a common reaction term is $R(u) = \alpha u (1-u)$, representing logistic growth.
+where $u(x, t)$ is the concentration of a substance, $D$ is the diffusion coefficient, and $R(u)$ is the reaction term, which can be linear or nonlinear. In this case, the reaction term is $R(u) = n*u^2$, representing a non-linear growth.
 
 Please refer to the MATLAB scripts in `data-creator/` for the specific initial and boundary conditions, and any exact source terms or reaction functions used to generate the training and testing data for each problem.
 
@@ -88,18 +88,29 @@ wandb login
 ```
 
 ## Results
-### 1D Reaction-Diffusion problem
-On a 5000 trajectories database, splitted following dataset percentajes. Name: reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat
 
-input_sensor = 100
-output_Sensors = 100
-hidden units = 5
-layers = 5 (per both trunk and branch)
-epochs = 1000
+### 1D Reaction-Diffusion System
+
+| Category          | Specification                                  |
+|-------------------|-----------------------------------------------|
+| **Dataset**       | `reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat` |
+| **Trajectories**  | 5,000 (train/val/test split)                  |
+| **Input Dim**     | 100 sensors                                   |
+| **Output Dim**    | 100 sensors                                   |
+
+**Model Architecture**
+```python
+{
+  "hidden_units": 50,
+  "num_layers": 5,  # both trunk and branch
+  "epochs": 1000,
+  "learning_rate": 1e-3
+}
+```
 
 **Test Metrics:**
-- Test Loss: 5.956697350484319e-05
-- Relative L2 Error: 0.017937155440449715
+- Test Loss: 5.956e-05
+- Relative L2 Error: 0.0179
 
 **Model Prediction vs Ground Truth**
 <div align="center">
@@ -112,4 +123,34 @@ epochs = 1000
 </div>
 
 ### 1D Burgers' equation problem
-On a 5000 trajectories database, splitted following dataset percentajes. Name: burgers_dataset_IC_gaussian_N5000_P100_nu0.0250_256x10000_sampled100.mat
+
+| Category          | Specification                                  |
+|-------------------|-----------------------------------------------|
+| **Dataset**       | `reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat` |
+| **Trajectories**  | 5,000 (train/val/test split)                  |
+| **Input Dim**     | 256 sensors                                   |
+| **Output Dim**    | 100 sensors                                   |
+
+**Model Architecture**
+```python
+{
+  "hidden_units": 128,
+  "num_layers": 5,  # both trunk and branch
+  "epochs": 1000,
+  "learning_rate": 1e-3
+}
+```
+
+**Test Metrics:**
+- Test Loss: 4.9232e-04
+- Relative L2 Error: 0.0865
+
+**Model Prediction vs Ground Truth**
+<div align="center">
+<img src="/outputs/Burgers/test_prediction_example.png" width="850">
+</div>
+
+**Model inference on dense map**
+<div align="center">
+<img src="/outputs/Burgers/test_prediction_example.png" width="850">
+</div>
