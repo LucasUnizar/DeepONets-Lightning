@@ -119,7 +119,7 @@ wandb login
 
 **Model inference on dense map**
 <div align="center">
-<img src="/outputs/RD/test_prediction_example.png" width="850">
+<img src="/outputs/RD/true_solution_example.png" width="850">
 </div>
 
 ### 1D Burgers' equation problem
@@ -152,5 +152,5 @@ wandb login
 
 **Model inference on dense map**
 <div align="center">
-<img src="/outputs/Burgers/test_prediction_example.png" width="850">
+<img src="/outputs/Burgers/true_solution_example.png" width="850">
 </div>
