@@ -52,9 +52,9 @@ where $u(x, t)$ is the dependent variable (e.g., velocity), $x$ is the spatial c
 
 The 1D Reaction-Diffusion equation models phenomena where two processes occur: diffusion (spreading out) and reaction (generation or consumption). A common form is:
 
-$$ \frac{\partial u}{\partial t} = D \frac{\partial^2 u}{\partial x^2} + R(u) $$
+$$ \frac{\partial u}{\partial t} = D \frac{\partial^2 u}{\partial x^2} + R(u) + f(x)$$
 
-where $u(x, t)$ is the concentration of a substance, $D$ is the diffusion coefficient, and $R(u)$ is the reaction term, which can be linear or nonlinear. In this case, the reaction term is $R(u) = n*u^2$, representing a non-linear growth.
+where $u(x, t)$ is the concentration of a substance, $D$ is the diffusion coefficient, and $R(u)$ is the reaction term, which can be linear or nonlinear. In this case, the reaction term is $R(u) = n*u^2$, representing a non-linear growth.  While the IC, $u(x,0) = 0$
 
 Please refer to the MATLAB scripts in `data-creator/` for the specific initial and boundary conditions, and any exact source terms or reaction functions used to generate the training and testing data for each problem.
 
