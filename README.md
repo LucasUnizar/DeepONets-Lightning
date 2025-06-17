@@ -89,5 +89,5 @@ wandb login
 
 ## Plots
 <div align="center">
-<img src="/outputs/true_solution_example.png" width="850">
+<img src="/outputs/test_prediction_example.png" width="850">
 </div>
