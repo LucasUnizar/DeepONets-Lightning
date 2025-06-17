@@ -87,7 +87,29 @@ pip install -r requirements.txt
 wandb login
 ```
 
-## Plots
+## Results
+### 1D Reaction-Diffusion problem
+On a 5000 trajectories database, splitted following dataset percentajes. Name: reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat
+
+input_sensor = 100
+output_Sensors = 100
+hidden units = 5
+layers = 5 (per both trunk and branch)
+epochs = 1000
+
+**Test Metrics:**
+- Test Loss: 5.956697350484319e-05
+- Relative L2 Error: 0.017937155440449715
+
+**Model Prediction vs Ground Truth**
 <div align="center">
-<img src="/outputs/test_prediction_example.png" width="850">
+<img src="/outputs/RD/test_prediction_example.png" width="850">
 </div>
+
+**Model inference on dense map**
+<div align="center">
+<img src="/outputs/RD/test_prediction_example.png" width="850">
+</div>
+
+### 1D Burgers' equation problem
+On a 5000 trajectories database, splitted following dataset percentajes. Name: burgers_dataset_IC_gaussian_N5000_P100_nu0.0250_256x10000_sampled100.mat

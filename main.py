@@ -14,8 +14,8 @@ from pytorch_lightning.loggers import WandbLogger
 import matplotlib
 import torch
 
-from dataset.dataset import DataModule
-from model.DeepONet import DeepONet
+from src.dataset.dataset import DataModule
+from src.model.DeepONet import DeepONet
 
 # Set non-interactive backend for plotting
 matplotlib.use('Agg')

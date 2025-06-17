@@ -273,7 +273,7 @@ class DeepONet(pl.LightningModule):
         ax1 = fig.add_subplot(121) # 1 row, 2 columns, 1st plot
         sc1 = ax1.scatter(coords[:, 0], coords[:, 1], c=solution, cmap='plasma', s=10)
         plt.colorbar(sc1, ax=ax1)
-        ax1.set_title('True Solution (Scatter)')
+        ax1.set_title('Dense Prediction (Scatter)')
         ax1.set_xlabel('x')
         ax1.set_ylabel('t')
         
@@ -282,7 +282,7 @@ class DeepONet(pl.LightningModule):
         surf1 = ax2.plot_surface(grid_x, grid_t, grid_solution, cmap='plasma',
                                 linewidth=0, antialiased=False, alpha=0.8)
         fig.colorbar(surf1, ax=ax2, shrink=0.5, aspect=5)
-        ax2.set_title('True Solution (Surface)')
+        ax2.set_title('Dense Prediction (Surface)')
         ax2.set_xlabel('x')
         ax2.set_ylabel('t')
         ax2.set_zlabel('u(x,t)')
