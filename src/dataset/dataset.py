@@ -24,10 +24,11 @@ class ReactionDiffusionDataset(Dataset):
         y_train = torch.from_numpy(data['y_train']).float()  # Coordinates [Traj*Sampled, 2]
         s_train = torch.from_numpy(data['s_train']).float()  # Solutions [Traj*Sampled, 1]
         
-        print(f"\nOriginal shapes before reshaping:")
-        print(f"u_train shape: {u_train.shape} (input functions)")
-        print(f"y_train shape: {y_train.shape} (coordinates)")
-        print(f"s_train shape: {s_train.shape} (solutions)")
+        if split == 'train':
+            print(f"\nOriginal shapes before reshaping:")
+            print(f"u_train shape: {u_train.shape} (input functions)")
+            print(f"y_train shape: {y_train.shape} (coordinates)")
+            print(f"s_train shape: {s_train.shape} (solutions)")
         
         # Reshape from [Traj*Sampled, ...] to [Traj, Sampled, ...]
         num_trajectories = u_train.shape[0] // sampled
@@ -35,10 +36,11 @@ class ReactionDiffusionDataset(Dataset):
         y_train = y_train.view(num_trajectories, sampled, -1)  # [Traj, Sampled, 2]
         s_train = s_train.view(num_trajectories, sampled, -1)  # [Traj, Sampled, 1]
         
-        print(f"\nAfter reshaping to [Trajectories, Sampled, Features]:")
-        print(f"u_train shape: {u_train.shape}")
-        print(f"y_train shape: {y_train.shape}")
-        print(f"s_train shape: {s_train.shape}")
+        if split == 'train':
+            print(f"\nAfter reshaping to [Trajectories, Sampled, Features]:")
+            print(f"u_train shape: {u_train.shape}")
+            print(f"y_train shape: {y_train.shape}")
+            print(f"s_train shape: {s_train.shape}")
         
         # Split trajectories (80-10-10 split)
         num_trajectories = u_train.shape[0]
