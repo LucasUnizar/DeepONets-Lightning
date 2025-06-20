@@ -24,7 +24,7 @@ Nt_solver = 10000;  % Temporal resolution for the SOLVER (can be very large for 
 m = Nx;             % Number of input sensors (same as spatial resolution)
 nu = 0.025;         % Kinematic viscosity (diffusion coefficient) for Burgers' equation
 % Dataset parameters
-N_train = 5000;      % Number of training samples
+N_train = 1000;      % Number of training samples
 P_train = 100;      % Number of output sensor points per sample
 Nt_sample = 100;     % Desired number of time points for SAMPLING per solution.
                     % Total (x,t) output samples will be P_train. If P_train > Nx * Nt_sample,
