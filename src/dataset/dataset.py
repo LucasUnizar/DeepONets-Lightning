@@ -115,20 +115,20 @@ class DataModule(pl.LightningDataModule):
     def train_dataloader(self):
         print("\nCreating train dataloader")
         loader = DataLoader(self.train_dataset, batch_size=self.batch_size, 
-                         shuffle=True, num_workers=2)
+                         shuffle=True, num_workers=0)
         print(f"Train batches: {len(loader)} (batch_size: {self.batch_size})")
         return loader
 
     def val_dataloader(self):
         print("\nCreating val dataloader")
         loader = DataLoader(self.val_dataset, batch_size=self.batch_size, 
-                         num_workers=2)
+                         num_workers=0)
         print(f"Val batches: {len(loader)} (batch_size: {self.batch_size})")
         return loader
 
     def test_dataloader(self):
         print("\nCreating test dataloader")
         loader = DataLoader(self.test_dataset, batch_size=self.sampled, 
-                         num_workers=2)
+                         num_workers=0)
         print(f"Test batches: {len(loader)} (batch_size: {self.sampled})")
         return loader
