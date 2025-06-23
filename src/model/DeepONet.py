@@ -68,6 +68,8 @@ class DeepONet(pl.LightningModule):
             
         self.trunk = nn.Sequential(*trunk_modules)
 
+        self.bias = nn.Parameter(torch.zeros(1))  # Initialize bias as a learnable parameter
+
         # Initialize weights
         self._init_weights()
 
@@ -100,6 +102,9 @@ class DeepONet(pl.LightningModule):
         # Dot product and sum
         output = torch.sum(branch_out.unsqueeze(1) * trunk_out, dim=-1)  # [batch_size, num_points]
         
+        # Add bias term
+        output = output + self.bias  # [batch_size, num_points]
+    
         return output.squeeze(-1)  # Ensure output is [batch_size] or [batch_size, num_points]
 
     def training_step(self, batch, batch_idx):

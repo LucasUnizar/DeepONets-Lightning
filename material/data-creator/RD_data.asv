@@ -19,7 +19,8 @@ Nt = 100;           % Temporal resolution (number of time steps)
 m = Nx;             % Number of input sensors (same as spatial resolution)
 
 % Dataset parameters
-N_train = 500;     % Number of training samples
+N_train = 5  23
+00;     % Number of training samples
 P_train = 500;      % Number of output sensor points per sample
 
 % Domain definition

@@ -34,21 +34,21 @@ def parse_args():
                        help='Path to pre-trained model weights for transfer learning')
     
     # Data arguments
-    parser.add_argument('--data_path', type=str, default=r'data/burgers_dataset_IC_gaussian_N5000_P100_nu0.0250_256x10000_sampled100.mat',
+    parser.add_argument('--data_path', type=str, default=r'data/reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat',
                        help='Path to the .mat data file')
     parser.add_argument('--batch_size', type=int, default=10000,
                        help='Batch size for training')
-    parser.add_argument('--input_sensors', type=int, default=256,
+    parser.add_argument('--input_sensors', type=int, default=100,
                        help='Number of input sensors (m)')
     parser.add_argument('--output_sensors', type=int, default=100,
                        help='Number of output sensors (P)')
-    parser.add_argument('--domain', type=list, default=[-1, 1],
+    parser.add_argument('--domain', type=list, default=[0, 1],
                        help='Domain of the input data as a list [min, max]')
     parser.add_argument('--time_domain', type=list, default=[0, 1],
                        help='Time domain of the input data as a list [min, max]')
 
     # Model arguments
-    parser.add_argument('--hidden_dim', type=int, default=128,
+    parser.add_argument('--hidden_dim', type=int, default=50,
                        help='Hidden dimension size')
     parser.add_argument('--trunk_layers', type=int, default=5,
                        help='Number of trunk network layers')
@@ -56,7 +56,7 @@ def parse_args():
                        help='Number of branch network layers')
     
     # Training arguments
-    parser.add_argument('--max_epochs', type=int, default=1,
+    parser.add_argument('--max_epochs', type=int, default=100,
                        help='Maximum number of epochs to train')
     parser.add_argument('--iterations', type=int, default=120000,
                        help='Desired number of iterations (alternative to max_epochs)')
