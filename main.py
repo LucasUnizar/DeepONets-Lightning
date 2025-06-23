@@ -34,7 +34,7 @@ def parse_args():
                        help='Path to pre-trained model weights for transfer learning')
     
     # Data arguments
-    parser.add_argument('--data_path', type=str, default=r'data/reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat',
+    parser.add_argument('--data_path', type=str, default=r'data\Jaca25\RD-Comp.mat',
                        help='Path to the .mat data file')
     parser.add_argument('--batch_size', type=int, default=10000,
                        help='Batch size for training')
