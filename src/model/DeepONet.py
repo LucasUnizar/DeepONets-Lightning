@@ -79,11 +79,6 @@ class DeepONet(pl.LightningModule):
     def _init_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                # When using other activations, the gain for Xavier initialization might need adjustment.
-                # For tanh, 'calculate_gain('tanh')' is appropriate.
-                # For custom activations like cos then tanh, it's less straightforward.
-                # You might need to experiment or use a generic gain like 1.0 or 'relu'.
-                # For now, keeping 'tanh' gain, as tanh is the last part of the custom activation.
                 nn.init.xavier_normal_(m.weight, gain=nn.init.calculate_gain('tanh'))
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
@@ -119,8 +114,14 @@ class DeepONet(pl.LightningModule):
         solution = solution.view(-1, 1)  # [batch_size, 1]
         
         loss = F.mse_loss(pred, solution)
-
-        self.log('train_loss', loss, prog_bar=True)
+        
+        # Calculate relative L2 error
+        relative_l2 = torch.norm(pred - solution, p=2) / (torch.norm(solution, p=2) + 1e-8)  # Added small epsilon to avoid division by zero
+        
+        # Log metrics
+        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
+        self.log('train_relative_l2', relative_l2, on_step=True, on_epoch=True)
+        
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -136,8 +137,14 @@ class DeepONet(pl.LightningModule):
             solution = solution.view(-1, 1)
             
             loss = F.mse_loss(pred, solution)
-
-            self.log('val_loss', loss, prog_bar=True)
+            
+            # Calculate relative L2 error
+            relative_l2 = torch.norm(pred - solution, p=2) / (torch.norm(solution, p=2) + 1e-8)
+            
+            # Log metrics
+            self.log('val_loss', loss, on_epoch=True, prog_bar=True)
+            self.log('val_relative_l2', relative_l2, on_epoch=True)
+            
             return loss
 
     def test_step(self, batch, batch_idx):
@@ -155,7 +162,7 @@ class DeepONet(pl.LightningModule):
             loss = F.mse_loss(pred, solution)
 
             # Calculate relative L2 error
-            relative_l2 = torch.norm(pred - solution, p=2) / torch.norm(solution, p=2)
+            relative_l2 = torch.norm(pred - solution, p=2) / (torch.norm(solution, p=2) + 1e-8)
             self.log('test_loss', loss)
             self.log('test_relative_l2', relative_l2)
 
