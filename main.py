@@ -48,15 +48,15 @@ def parse_args():
                        help='Time domain of the input data as a list [min, max]')
 
     # Model arguments
-    parser.add_argument('--hidden_dim', type=int, default=50,
+    parser.add_argument('--hidden_dim', type=int, default=32,
                        help='Hidden dimension size')
-    parser.add_argument('--trunk_layers', type=int, default=5,
+    parser.add_argument('--trunk_layers', type=int, default=3,
                        help='Number of trunk network layers')
-    parser.add_argument('--branch_layers', type=int, default=5,
+    parser.add_argument('--branch_layers', type=int, default=3,
                        help='Number of branch network layers')
     
     # Training arguments
-    parser.add_argument('--max_epochs', type=int, default=100,
+    parser.add_argument('--max_epochs', type=int, default=500,
                        help='Maximum number of epochs to train')
     parser.add_argument('--iterations', type=int, default=120000,
                        help='Desired number of iterations (alternative to max_epochs)')
