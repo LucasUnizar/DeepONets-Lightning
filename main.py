@@ -34,9 +34,9 @@ def parse_args():
                        help='Path to pre-trained model weights for transfer learning')
     
     # Data arguments
-    parser.add_argument('--data_path', type=str, default=r'data\Jaca25\RD-Comp.mat',
+    parser.add_argument('--data_path', type=str, default=r'data\reaction_diffusion_dataset_N5000_P100_L0.20_100x100.mat',
                        help='Path to the .mat data file')
-    parser.add_argument('--batch_size', type=int, default=10000,
+    parser.add_argument('--batch_size', type=int, default=512,
                        help='Batch size for training')
     parser.add_argument('--input_sensors', type=int, default=100,
                        help='Number of input sensors (m)')
@@ -48,7 +48,7 @@ def parse_args():
                        help='Time domain of the input data as a list [min, max]')
 
     # Model arguments
-    parser.add_argument('--hidden_dim', type=int, default=32,
+    parser.add_argument('--hidden_dim', type=int, default=16,
                        help='Hidden dimension size')
     parser.add_argument('--trunk_layers', type=int, default=3,
                        help='Number of trunk network layers')
@@ -56,7 +56,7 @@ def parse_args():
                        help='Number of branch network layers')
     
     # Training arguments
-    parser.add_argument('--max_epochs', type=int, default=500,
+    parser.add_argument('--max_epochs', type=int, default=100,
                        help='Maximum number of epochs to train')
     parser.add_argument('--iterations', type=int, default=120000,
                        help='Desired number of iterations (alternative to max_epochs)')
