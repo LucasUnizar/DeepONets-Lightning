@@ -154,22 +154,27 @@ class DeepONet(pl.LightningModule):
             solution = batch['solution']
 
             pred = self(input_func, coords)
-            
+
             # Ensure shapes match
             pred = pred.view(-1, 1)
             solution = solution.view(-1, 1)
-            
+
             loss = F.mse_loss(pred, solution)
 
             # Calculate relative L2 error
-            relative_l2 = torch.norm(pred - solution, p=2) / (torch.norm(solution, p=2) + 1e-8)
+            relative_l2 = torch.norm(pred - solution, p=2) / torch.norm(solution, p=2)
             self.log('test_loss', loss)
             self.log('test_relative_l2', relative_l2)
 
             # Plot and save example predictions for the first test batch
             if batch_idx == 0:
-                self._plot_test_example(coords.cpu(), solution.cpu(), pred.cpu())
-                
+                self._plot_test_example(
+                    coords.cpu(), 
+                    solution.cpu(), 
+                    pred.cpu(),
+                    input_func[0,:].cpu()  # Pass the input function to the plotting function
+                )
+
             return loss
 
     def on_test_end(self, num_points=100, idx_arg=0):
@@ -180,7 +185,7 @@ class DeepONet(pl.LightningModule):
                 f_x = input_func[0, :].unsqueeze(0)  # [1, m]
                 domain = self.domain
                 time = self.time_domain
-                
+
                 x = torch.linspace(domain[0], domain[1], num_points).to(self.device)
                 t = torch.linspace(time[0], time[1], num_points).to(self.device)
 
@@ -193,66 +198,71 @@ class DeepONet(pl.LightningModule):
 
                 pred = self(input_func_dense, coords)
                 if idx == idx_arg:
-                    self._plot_test_example_solution_only(coords.cpu(), pred.cpu())
+                    self._plot_test_example_solution_only(coords.cpu(), pred.cpu(), input_func_dense[0,:].cpu())
                     print("Dense test example plotted and saved.")
                     return
                     
 
-    def _plot_test_example(self, coords, solution, pred):
-        """Plot and save test examples showing true solution vs prediction"""
+    def _plot_test_example(self, coords, solution, pred, ic):
+        """Plot and save test examples showing true solution vs prediction with colored IC line"""
         # Convert to numpy arrays
         coords = coords.numpy()
         solution = solution.numpy().flatten()
         pred = pred.numpy().flatten()
+        ic = ic.numpy().flatten()
+
+        # Create figure with adjusted aspect ratio for horizontal layout
+        fig = plt.figure(figsize=(24, 8))  # Wider figure for horizontal subplots
+
+        # Create gridspec for 1 row, 3 columns
+        gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1], wspace=0.3)
+
+        # Get common normalization for all plots using the solution
+        norm = plt.Normalize(vmin=min(solution.min(), pred.min()), 
+                            vmax=max(solution.max(), pred.max()))
+
+        # Scatter plot of true solution with colored IC line at t=0
+        ax1 = fig.add_subplot(gs[0])
+        sc1 = ax1.scatter(coords[:, 0], coords[:, 1], c=solution, cmap='plasma', norm=norm, s=10)
         
-        # Create grid for surface plot
-        grid_x, grid_t = np.mgrid[coords[:,0].min():coords[:,0].max():100j, 
-                          coords[:,1].min():coords[:,1].max():100j]
+        # Add colored IC line at t=0 (1D plot with same colormap)
+        x_coords = np.linspace(self.domain[0], self.domain[1], ic.shape[0]) 
+        for i in range(len(x_coords)-1):
+            ax1.plot(x_coords[i:i+2], [0, 0], 
+                    color=plt.cm.plasma(norm(ic[i])), 
+                    linewidth=2)
         
-        # Interpolate true solution
-        grid_solution = griddata(coords, solution, (grid_x, grid_t), method='cubic')
-        
-        # Interpolate prediction
-        grid_pred = griddata(coords, pred, (grid_x, grid_t), method='cubic')
-        
-        # Create figure with 4 subplots
-        fig = plt.figure(figsize=(18, 12))
-        
-        # Scatter plot of true solution
-        ax1 = fig.add_subplot(221)
-        sc1 = ax1.scatter(coords[:, 0], coords[:, 1], c=solution, cmap='plasma', s=10)
         plt.colorbar(sc1, ax=ax1)
-        ax1.set_title('True Solution (Scatter)')
+        ax1.set_title('True Solution with IC at t=0')
         ax1.set_xlabel('x')
         ax1.set_ylabel('t')
+        ax1.set_aspect('auto')
+
+        # Scatter plot of prediction with colored IC line at t=0
+        ax2 = fig.add_subplot(gs[1])
+        sc2 = ax2.scatter(coords[:, 0], coords[:, 1], c=pred, cmap='plasma', norm=norm, s=10)
         
-        # Scatter plot of prediction
-        ax2 = fig.add_subplot(222)
-        sc2 = ax2.scatter(coords[:, 0], coords[:, 1], c=pred, cmap='plasma', s=10)
+        # Add colored IC line at t=0 (1D plot with same colormap)
+        for i in range(len(x_coords)-1):
+            ax2.plot(x_coords[i:i+2], [0, 0], 
+                    color=plt.cm.plasma(norm(ic[i])), 
+                    linewidth=2)
+        
         plt.colorbar(sc2, ax=ax2)
-        ax2.set_title('Predicted Solution (Scatter)')
+        ax2.set_title('Predicted Solution with IC at t=0')
         ax2.set_xlabel('x')
         ax2.set_ylabel('t')
-        
-        # Surface plot of true solution
-        ax3 = fig.add_subplot(223, projection='3d')
-        surf1 = ax3.plot_surface(grid_x, grid_t, grid_solution, cmap='plasma',
-                                linewidth=0, antialiased=False, alpha=0.8)
-        fig.colorbar(surf1, ax=ax3, shrink=0.5, aspect=5)
-        ax3.set_title('True Solution (Surface)')
+        ax2.set_aspect('auto')
+
+        # Absolute error plot
+        ax3 = fig.add_subplot(gs[2])
+        error = np.abs(pred - solution)
+        sc3 = ax3.scatter(coords[:, 0], coords[:, 1], c=error, cmap='Reds', s=10)
+        plt.colorbar(sc3, ax=ax3)
+        ax3.set_title('Absolute Error (Prediction vs Ground Truth)')
         ax3.set_xlabel('x')
         ax3.set_ylabel('t')
-        ax3.set_zlabel('u(x,t)')
-        
-        # Surface plot of prediction
-        ax4 = fig.add_subplot(224, projection='3d')
-        surf2 = ax4.plot_surface(grid_x, grid_t, grid_pred, cmap='plasma',
-                                linewidth=0, antialiased=False, alpha=0.8)
-        fig.colorbar(surf2, ax=ax4, shrink=0.5, aspect=5)
-        ax4.set_title('Predicted Solution (Surface)')
-        ax4.set_xlabel('x')
-        ax4.set_ylabel('t')
-        ax4.set_zlabel('u(x,t)')
+        ax3.set_aspect('auto')
         
         plt.tight_layout()
         
@@ -265,36 +275,59 @@ class DeepONet(pl.LightningModule):
             wandb.log({"test_prediction_example": wandb.Image(fig)})
     
 
-    def _plot_test_example_solution_only(self, coords, solution):
-        """Plot and save test examples showing true solution and its surface map."""
+    def _plot_test_example_solution_only(self, coords, solution, ic):
+        """Plot and save test examples showing true solution, its surface map, and IC."""
         # Convert to numpy arrays
         coords = coords.numpy()
         solution = solution.numpy().flatten()
-        
+        ic = ic.numpy().flatten()
+
         # Create grid for surface plot
-        grid_x, grid_t = np.mgrid[coords[:,0].min():coords[:,0].max():100j, 
+        grid_x, grid_t = np.mgrid[coords[:,0].min():coords[:,0].max():100j,
                         coords[:,1].min():coords[:,1].max():100j]
-        
+
         # Interpolate true solution
         grid_solution = griddata(coords, solution, (grid_x, grid_t), method='cubic')
-        
+
         # Create figure with 2 subplots
-        fig = plt.figure(figsize=(12, 6)) # Adjusted figure size for 2 plots
-        
-        # Scatter plot of true solution
+        fig = plt.figure(figsize=(12, 8)) # Adjusted figure size for 2 plots
+
+        # Create common normalization
+        norm = plt.Normalize(vmin=min(solution.min(), ic.min()),
+                            vmax=max(solution.max(), ic.max()))
+
+        # Scatter plot of true solution with IC
         ax1 = fig.add_subplot(121) # 1 row, 2 columns, 1st plot
-        sc1 = ax1.scatter(coords[:, 0], coords[:, 1], c=solution, cmap='plasma', s=10)
+        sc1 = ax1.scatter(coords[:, 0], coords[:, 1], c=solution, cmap='plasma', norm=norm, s=10)
+        
+        # Add colored IC line at t=0
+        x_coords = np.linspace(coords[:,0].min(), coords[:,0].max(), len(ic))
+        for i in range(len(x_coords)-1):
+            ax1.plot(x_coords[i:i+2], [0, 0], 
+                    color=plt.cm.plasma(norm(ic[i])), 
+                    linewidth=2)
+        
         plt.colorbar(sc1, ax=ax1)
-        ax1.set_title('Dense Prediction (Scatter)')
+        ax1.set_title('Solution with IC at t=0 (Scatter)')
         ax1.set_xlabel('x')
         ax1.set_ylabel('t')
-        
-        # Surface plot of true solution
+
+        # Surface plot of true solution with IC
         ax2 = fig.add_subplot(122, projection='3d') # 1 row, 2 columns, 2nd plot
-        surf1 = ax2.plot_surface(grid_x, grid_t, grid_solution, cmap='plasma',
+        surf1 = ax2.plot_surface(grid_x, grid_t, grid_solution, cmap='plasma', norm=norm,
                                 linewidth=0, antialiased=False, alpha=0.8)
+        
+        # Add colored IC line at t=0 on surface plot
+        t_min = coords[:,1].min()
+        ax2.plot(x_coords, np.zeros_like(x_coords), ic,
+                color='black', linewidth=1.5, alpha=0.7)
+        
+        # Add colored dots for IC values
+        sc_ic = ax2.scatter(x_coords, np.zeros_like(x_coords), ic,
+                          c=ic, cmap='plasma', norm=norm, s=20)
+        
         fig.colorbar(surf1, ax=ax2, shrink=0.5, aspect=5)
-        ax2.set_title('Dense Prediction (Surface)')
+        ax2.set_title('Solution with IC at t=0 (Surface)')
         ax2.set_xlabel('x')
         ax2.set_ylabel('t')
         ax2.set_zlabel('u(x,t)')
@@ -311,15 +344,18 @@ class DeepONet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-            optimizer, 
-            T_max=self.max_epochs, # Maximum number of iterations (epochs in this case)
-            eta_min=1e-6 # Minimum learning rate
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode='min',          # or 'max' depending on your metric
+            factor=0.8,          # Reduce LR by this factor
+            patience=50,          # Number of epochs with no improvement after which LR will be reduced
+            min_lr=1e-8         # Minimum learning rate
         )
         return {
             'optimizer': optimizer,
             'lr_scheduler': {
                 'scheduler': scheduler,
+                'monitor': 'train_relative_l2_epoch',  # Change this to your metric, e.g., 'val_accuracy' if mode='max'
                 'interval': 'epoch',
                 'frequency': 1
             }
