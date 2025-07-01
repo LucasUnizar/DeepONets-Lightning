@@ -109,8 +109,8 @@ wandb login
 ```
 
 **Test Metrics:**
-- Test Loss: 5.956e-05
-- Relative L2 Error: 0.0179
+- Test Loss: 1.75e-05
+- Relative L2 Error: 0.0169
 
 **Model Prediction vs Ground Truth**
 <div align="center">
@@ -142,8 +142,8 @@ wandb login
 ```
 
 **Test Metrics:**
-- Test Loss: 4.9232e-04
-- Relative L2 Error: 0.0865
+- Test Loss: 6.088-06
+- Relative L2 Error: 0.0032
 
 **Model Prediction vs Ground Truth**
 <div align="center">
