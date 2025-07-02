@@ -113,7 +113,7 @@ class DataModule(pl.LightningDataModule):
                 self.mat_file_path, 'test', self.sampled)
             print(f"Test dataset size: {len(self.test_dataset)} samples")
 
-    def plot_solution_with_ic(self, split='train', trajectory_idx=0, input_domain=[0,1]):
+    def plot_solution_with_ic(self, trajectory_idx=0, input_domain=[0,1]):
         """
         Plot solution with initial condition in 2D scatter view.
         
@@ -123,15 +123,12 @@ class DataModule(pl.LightningDataModule):
             input_domain: Domain [min, max] for the x-dimension
         """
         # Get the appropriate dataset
-        dataset = self.val_dataset
-        
-        # Get a batch of data (using batch_size=sampled to get full trajectory)
-        batch = next(iter(DataLoader(dataset, batch_size=self.sampled, shuffle=False)))
+        batch = self.val_dataset[trajectory_idx]
         
         # Select the specific trajectory (reshape if needed)
-        coords = batch['coords'].view(-1, self.sampled, 2)[trajectory_idx]  # [x, t]
-        solution = batch['solution'].view(-1, self.sampled, 1)[trajectory_idx]  # u(x,t)
-        ic = batch['input_func'].view(-1, self.sampled, 1)[trajectory_idx]  # u(x,0)
+        coords = batch['coords'] # [1, 2]
+        solution = batch['solution'] # u(x,t)
+        ic = batch['input_func'] # Initial condition at t=0
         
         # Convert to numpy arrays
         coords = coords.numpy()
@@ -146,7 +143,7 @@ class DataModule(pl.LightningDataModule):
                             vmax=max(solution.max(), ic.max()))
 
         # Scatter plot of solution
-        sc = plt.scatter(coords[:, 0], coords[:, 1], c=solution, 
+        sc = plt.scatter(coords[0], coords[1], c=solution, 
                         cmap='plasma', norm=norm, s=10)
         
         # Add colored IC line at t=0 using specified input domain
