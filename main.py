@@ -59,6 +59,8 @@ def parse_args():
     # Training arguments
     parser.add_argument('--max_epochs', type=int, default=1,
                        help='Maximum number of epochs to train')
+    parser.add_argument('--lr', type=float, default=1e-3,
+                       help='Learning rate for the optimizer')
     parser.add_argument('--iterations', type=int, default=120000,
                        help='Desired number of iterations (alternative to max_epochs)')
     parser.add_argument('--val_check_interval', type=int, default=1,

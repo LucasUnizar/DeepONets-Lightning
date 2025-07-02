@@ -24,6 +24,7 @@ class DeepONet(pl.LightningModule):
         self.save_hyperparameters()
         # External arguments
         self.args = args
+        self.lr = args.lr if hasattr(args, 'lr') else 1e-3
         self.max_epochs = args.max_epochs
         self.domain = args.domain if hasattr(args, 'domain') else [0, 1]
         self.time_domain = args.time_domain if hasattr(args, 'time_domain') else [0, 1]
@@ -343,7 +344,7 @@ class DeepONet(pl.LightningModule):
             wandb.log({"true_solution_example": wandb.Image(fig)})
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
             mode='min',          # or 'max' depending on your metric
