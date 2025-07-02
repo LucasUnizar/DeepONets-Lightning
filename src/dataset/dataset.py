@@ -4,8 +4,9 @@ import scipy.io as sio
 from torch.utils.data import Dataset, DataLoader
 import pytorch_lightning as pl
 import numpy as np
+import matplotlib.pyplot as plt
 
-class ReactionDiffusionDataset(Dataset):
+class LoadDataset(Dataset):
     def __init__(self, mat_file_path, split='train', sampled=100):
         """
         Args:
@@ -99,18 +100,69 @@ class DataModule(pl.LightningDataModule):
     def setup(self, stage=None):
         print(f"\nSetting up DataModule for stage: {stage}")
         if stage == 'fit' or stage is None:
-            self.train_dataset = ReactionDiffusionDataset(
+            self.train_dataset = LoadDataset(
                 self.mat_file_path, 'train', self.sampled)
-            self.val_dataset = ReactionDiffusionDataset(
+            self.val_dataset = LoadDataset(
                 self.mat_file_path, 'val', self.sampled)
             print(f"\nDataset sizes:")
             print(f"Train dataset size: {len(self.train_dataset)} samples")
             print(f"Val dataset size: {len(self.val_dataset)} samples")
 
         if stage == 'test' or stage is None:
-            self.test_dataset = ReactionDiffusionDataset(
+            self.test_dataset = LoadDataset(
                 self.mat_file_path, 'test', self.sampled)
             print(f"Test dataset size: {len(self.test_dataset)} samples")
+
+    def plot_solution_with_ic(self, split='train', trajectory_idx=0, input_domain=[0,1]):
+        """
+        Plot solution with initial condition in 2D scatter view.
+        
+        Args:
+            split: 'val'
+            trajectory_idx: Index of the trajectory to plot
+            input_domain: Domain [min, max] for the x-dimension
+        """
+        # Get the appropriate dataset
+        dataset = self.val_dataset
+        
+        # Get a batch of data (using batch_size=sampled to get full trajectory)
+        batch = next(iter(DataLoader(dataset, batch_size=self.sampled, shuffle=False)))
+        
+        # Select the specific trajectory (reshape if needed)
+        coords = batch['coords'].view(-1, self.sampled, 2)[trajectory_idx]  # [x, t]
+        solution = batch['solution'].view(-1, self.sampled, 1)[trajectory_idx]  # u(x,t)
+        ic = batch['input_func'].view(-1, self.sampled, 1)[trajectory_idx]  # u(x,0)
+        
+        # Convert to numpy arrays
+        coords = coords.numpy()
+        solution = solution.numpy().flatten()
+        ic = ic.numpy().flatten()
+
+        # Create figure
+        plt.figure(figsize=(10, 6))
+        
+        # Create normalization
+        norm = plt.Normalize(vmin=min(solution.min(), ic.min()),
+                            vmax=max(solution.max(), ic.max()))
+
+        # Scatter plot of solution
+        sc = plt.scatter(coords[:, 0], coords[:, 1], c=solution, 
+                        cmap='plasma', norm=norm, s=10)
+        
+        # Add colored IC line at t=0 using specified input domain
+        x_coords = np.linspace(input_domain[0], input_domain[1], len(ic))
+        for i in range(len(x_coords)-1):
+            plt.plot(x_coords[i:i+2], [0, 0], 
+                    color=plt.cm.plasma(norm(ic[i])), 
+                    linewidth=3)
+        
+        plt.colorbar(sc, label='u(x,t)')
+        plt.title(f'Solution with IC (Trajectory {trajectory_idx}, {split} split)')
+        plt.xlabel('x (domain: [{}, {}])'.format(input_domain[0], input_domain[1]))
+        plt.ylabel('t')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
 
     def train_dataloader(self):
         print("\nCreating train dataloader")
