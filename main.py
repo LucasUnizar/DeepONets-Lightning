@@ -103,6 +103,8 @@ def main():
         sampled=args.output_sensors
     )
     data_module.setup('fit' if args.train else 'test')
+
+    #data_module.plot_solution_with_ic(trajectory_idx=0, input_domain=args.domain)
     
     # Initialize model
     model = DeepONet(
