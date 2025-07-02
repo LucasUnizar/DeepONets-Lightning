@@ -154,7 +154,7 @@ class DataModule(pl.LightningDataModule):
                     linewidth=3)
         
         plt.colorbar(sc, label='u(x,t)')
-        plt.title(f'Solution with IC (Trajectory {trajectory_idx}, {split} split)')
+        plt.title(f'Solution with IC (Trajectory {trajectory_idx}')
         plt.xlabel('x (domain: [{}, {}])'.format(input_domain[0], input_domain[1]))
         plt.ylabel('t')
         plt.grid(True)
